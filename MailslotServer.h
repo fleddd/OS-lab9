@@ -9,7 +9,8 @@ public:
 
     void Run() override;
     void Stop() override;
-    void BroadcastMessage(const std::string& message) override;
+    void BroadcastMessage(const std::wstring& senderId, const std::wstring& message) override;
+
 
 private:
     bool m_running;
