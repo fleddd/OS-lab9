@@ -6,8 +6,6 @@ public:
     virtual ~IServer() = default;
 
     virtual void Run() = 0;
-
     virtual void Stop() = 0;
-
-    virtual void BroadcastMessage(const std::string& message) = 0;
+    virtual void BroadcastMessage(const std::wstring& senderId, const std::wstring& message) = 0;
 };

@@ -17,9 +17,8 @@ void MailslotClient::Stop() {
     std::cout << "MailslotClient stopped.\n";
 }
 
-void MailslotClient::SendMessage(const std::string& message) {
+void MailslotClient::SendMessage(const std::wstring& message) {
     // TODO: Відправка повідомлення серверу через Mailslots
-    std::cout << "[MailslotClient] Sending: " << message << "\n";
 }
 
 void MailslotClient::ListenServer() {

@@ -1,9 +1,9 @@
 #pragma once
-/*
-Що написати:
 
-Config.h: Константи імен.
+constexpr wchar_t PIPE_BASE_NAME[] = L"\\\\.\\pipe\\MyPipe_";
+constexpr int PIPE_BUFFER_SIZE = 512;
+constexpr int MAX_CLIENTS = 10;
 
-імена \\.\pipe\... та \\.\mailslot\....
-
-*/
+struct ClientInfo {
+    HANDLE hPipe;
+};
