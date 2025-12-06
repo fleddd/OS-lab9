@@ -123,7 +123,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MailslotClient.cpp" />
+    <ClCompile Include="MailslotServer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PipeClient.cpp" />
+    <ClCompile Include="PipeServer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="IClient.h" />
+    <ClInclude Include="IServer.h" />
+    <ClInclude Include="MailslotClient.h" />
+    <ClInclude Include="MailslotServer.h" />
+    <ClInclude Include="PipeClient.h" />
+    <ClInclude Include="PipeServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
