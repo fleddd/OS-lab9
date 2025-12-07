@@ -8,6 +8,8 @@
 
 using namespace std;
 
+constexpr int INPUT_PROMPT_LENGTH = sizeof(INPUT_PROMPT) / sizeof(wchar_t) - 1;
+
 MailslotClient::MailslotClient() : m_running(false), m_clientMailslot(INVALID_HANDLE_VALUE), m_serverWriteHandle(INVALID_HANDLE_VALUE) {}
 
 MailslotClient::~MailslotClient() {
