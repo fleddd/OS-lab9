@@ -13,11 +13,10 @@ PipeServer::~PipeServer() {
 
 void PipeServer::Run() {
     m_running = true;
-    string id;
-    cout << "Enter Server ID: ";
-    cin >> id;
+    wstring id = to_wstring(GetCurrentProcessId());
 
-    wstring basePipeName = wstring(PIPE_BASE_NAME) + wstring(id.begin(), id.end());
+    wstring basePipeName = wstring(PIPE_BASE_NAME) + id;
+    wcout << L"Server ID: " << id << endl;
     wcout << L"Server started on pipes: " << basePipeName << L"_*" << endl;
 
     thread(&PipeServer::WaitForClients, this, basePipeName).detach();
@@ -54,11 +53,6 @@ void PipeServer::BroadcastMessage(const wstring& sender, const wstring& message,
     }
 
     for (auto& client : clientsCopy) {
-        // Пропускаємо відправника
-        if (client.readPipe == excludePipe) {
-            continue;
-        }
-
         DWORD written = 0;
         DWORD msgSize = (DWORD)((fullMsg.size() + 1) * sizeof(wchar_t));
 

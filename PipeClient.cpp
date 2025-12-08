@@ -2,8 +2,12 @@
 #include "Config.h"
 #include <iostream>
 #include <limits>
+#include <mutex>
+#include <conio.h>
 
 using namespace std;
+
+constexpr int INPUT_PROMPT_LENGTH = sizeof(INPUT_PROMPT) / sizeof(wchar_t) - 1;
 
 PipeClient::PipeClient() : m_running(false), m_readPipe(INVALID_HANDLE_VALUE), m_writePipe(INVALID_HANDLE_VALUE) {}
 
@@ -30,11 +34,12 @@ void PipeClient::Run() {
     }
 
     wcout << L"Connected to server as '" << m_userName << L"'" << endl;
-    wcout << L"Type your messages (Ctrl+C to exit):" << endl;
+    wcout << L"Start chatting" << endl;
+    wcout << INPUT_PROMPT << flush;
 
     // Запускаємо потоки
     thread listener(&PipeClient::ListenServer, this);
-    thread sender(&PipeClient::SenderLoop, this);
+    thread sender(&PipeClient::ListenConsole, this);
 
     listener.join();
     sender.join();
@@ -166,19 +171,42 @@ void PipeClient::SendMessage(const wstring& message) {
     }
 }
 
-void PipeClient::SenderLoop() {
+void PipeClient::ListenConsole() {
     // Очищуємо буфер після cin
     wcin.ignore((numeric_limits<streamsize>::max)(), L'\n');
 
-    wstring line;
-    while (m_running) {
-        if (!getline(wcin, line)) {
-            // EOF або помилка
-            break;
-        }
+    m_currentInput.clear();
 
-        if (!line.empty()) {
-            SendMessage(line);
+    while (m_running) {
+        if (_kbhit()) {
+            wchar_t ch = _getwch();
+
+            lock_guard<mutex> lock(m_consoleMutex);
+
+            if (ch == L'\r' || ch == L'\n') {
+                // Enter
+                wcout << L"\n";
+                if (!m_currentInput.empty()) {
+                    SendMessage(m_currentInput);
+                    m_currentInput.clear();
+                }
+                wcout << INPUT_PROMPT << flush;
+            }
+            else if (ch == L'\b') {
+                // Backspace
+                if (!m_currentInput.empty()) {
+                    m_currentInput.pop_back();
+                    wcout << L"\b \b";
+                }
+            }
+            else if (ch >= 32) {
+                // Додаємо символ у поточний ввід
+                m_currentInput += ch;
+                wcout << ch;
+            }
+        }
+        else {
+            Sleep(10);
         }
     }
 }
@@ -213,6 +241,24 @@ void PipeClient::ListenServer() {
             msg.pop_back();
         }
 
-        wcout << msg << endl;
+        {
+            lock_guard<mutex> lock(m_consoleMutex);
+            
+            // Очищуємо поточний ввід та prompt
+            size_t totalLen = m_currentInput.size() + INPUT_PROMPT_LENGTH;
+            for (size_t i = 0; i < totalLen; ++i) {
+                wcout << L"\b \b";
+            }
+            
+            // Виводимо повідомлення
+            wcout << L"\r" << msg << endl;
+            
+            // Виводимо prompt та поточний ввід
+            wcout << INPUT_PROMPT;
+            if (!m_currentInput.empty()) {
+                wcout << m_currentInput;
+            }
+            wcout << flush;
+        }
     }
 }
