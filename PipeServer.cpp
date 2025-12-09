@@ -40,10 +40,6 @@ void PipeServer::Stop() {
 }
 
 void PipeServer::BroadcastMessage(const wstring& sender, const wstring& message) {
-    BroadcastMessage(sender, message, nullptr);
-}
-
-void PipeServer::BroadcastMessage(const wstring& sender, const wstring& message, HANDLE excludePipe) {
     wstring fullMsg = L"[" + sender + L"]: " + message;
 
     vector<ClientInfo> clientsCopy;
@@ -168,8 +164,8 @@ void PipeServer::WaitForClients(const wstring& basePipeName) {
             m_clients.push_back({ hReadPipe, hWritePipe, clientName });
         }
 
-        // Повідомляємо всіх про нового клієнта (КРІМ нього самого)
-        BroadcastMessage(L"SERVER", clientName + L" joined the chat", hReadPipe);
+        // Повідомляємо всіх про нового клієнта
+        BroadcastMessage(L"SERVER", clientName + L" joined the chat");
 
         thread(&PipeServer::HandleClient, this, hReadPipe, hWritePipe).detach();
     }
@@ -210,14 +206,14 @@ void PipeServer::HandleClient(HANDLE readPipe, HANDLE writePipe) {
         // НЕ виводимо повідомлення на сервері, тільки пересилаємо
         // Сервер працює як хаб - тільки перенаправляє повідомлення
 
-        // Розсилаємо всім КРІМ відправника
-        BroadcastMessage(clientName, msg, readPipe);
+        // Розсилаємо всім
+        BroadcastMessage(clientName, msg);
     }
 
     DisconnectNamedPipe(readPipe);
     DisconnectNamedPipe(writePipe);
     RemoveClient(readPipe);
 
-    // Повідомляємо про від'єднання (того клієнта вже немає, тому excludePipe не потрібен)
+    // Повідомляємо про від'єднання
     BroadcastMessage(L"SERVER", clientName + L" left the chat");
 }

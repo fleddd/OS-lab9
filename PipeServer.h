@@ -16,8 +16,6 @@ public:
 
     void BroadcastMessage(const std::wstring& sender, const std::wstring& message) override;
 
-    void BroadcastMessage(const std::wstring& sender, const std::wstring& message, HANDLE excludePipe);
-
 private:
     struct ClientInfo {
         HANDLE readPipe;
